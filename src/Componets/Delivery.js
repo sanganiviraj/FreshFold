@@ -60,8 +60,6 @@ const Delivery = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // justifyContent: 'center',
-    // alignItems: 'center',
     backgroundColor: '#fff',
     height: height/1,
     padding: 10,
