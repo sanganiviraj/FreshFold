@@ -1,34 +1,27 @@
-import { StyleSheet, Text, View, Dimensions, Image, TextInput, ScrollView, TouchableOpacity } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import ImageSlider from '../Componets/ImageSlider';
-import Reactotron from 'reactotron-react-native';
-import Services from '../Componets/Services';
-import Clothes from '../Componets/Clothes';
-import firestore from '@react-native-firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Dimensions, Image, TextInput, ScrollView, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alladddata, adddatatocart } from '../Redux/Action';
 import { FlatList } from 'react-native-gesture-handler';
+import firestore from '@react-native-firebase/firestore';
+import ImageSlider from '../Componets/ImageSlider';
+import Services from '../Componets/Services';
+import Clothes from '../Componets/Clothes';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const Home = ({ navigation }) => {
+  const dispatch = useDispatch();
   const [services, setservices] = useState();
-  const [totaldata, settotaldata] = useState();
-  const dispatch = useDispatch()
   const servicedata = useSelector(state => state.laundrydata);
   const carts = useSelector(state => state.Cart);
 
-  if (__DEV__) {
-    import("../ReactotronConfig").then(() => console.log("Reactotron Configured"));
-  }
-
   useEffect(() => {
-    getitem()
+    getItems();
+  }, []);
 
-  }, [])
-
-  const getitem = () => {
+  const getItems = () => {
     firestore()
       .collection('laundrydatas')
       .get()
@@ -40,28 +33,21 @@ const Home = ({ navigation }) => {
         });
 
         setservices(tempdata);
-        dispatch(Alladddata(tempdata))
+        dispatch(Alladddata(tempdata));
       });
   };
 
-  const _someofitem = () => {
-    let total = 0;
-    carts.forEach(item => {
-      total += item.price * item.quantity
-    })
-    settotaldata(total)
-  }
-
   const handlePress = () => {
-    navigation.push('orderscreen')
-  }
+    navigation.push('orderscreen');
+  };
 
-
- 
+  const addToCart = (item) => {
+    dispatch(adddatatocart(item));
+    calculateTotal();
+  };
 
   return (
     <View style={{ flex: 1 }}>
-
       <ScrollView style={styles.screen}>
         <View>
           <View style={styles.location}>
@@ -78,17 +64,14 @@ const Home = ({ navigation }) => {
           <ImageSlider />
 
           <Services />
-          {
-            services &&
+          {services &&
             <FlatList
               data={servicedata}
-              renderItem={({ item }) => {
-                return (
-                  <TouchableOpacity >
-                    <Clothes key={item.id} item={item} />
-                  </TouchableOpacity>
-                )
-              }}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => addToCart(item)}>
+                  <Clothes key={item.id} item={item} />
+                </TouchableOpacity>
+              )}
             />
           }
         </View>
@@ -96,15 +79,14 @@ const Home = ({ navigation }) => {
 
       {/* container */}
       <View style={styles.container}>
-        <View style={{ height: 60, justifyContent: 'center' }}>
-          <Text style={{ fontSize: 20, color: "black" }}> Items: {carts.length}</Text>
-          <Text style={{ fontSize: 18, color: "black" }}> Total: {totaldata}</Text>
+        <View style={{ height: windowHeight * 0.1, justifyContent: 'center' }}>
+          <Text style={{ fontSize: windowWidth * 0.04, color: 'black', fontWeight: '700', marginBottom: 5 }}>Quantity: {carts.reduce((acc, item) => acc + item.quantity, 0)}</Text>
+          <Text style={{ fontSize: windowWidth * 0.04, color: 'black', fontWeight: '700' }}> Price: ${carts.reduce((acc, item) => acc + item.price * item.quantity, 0)}</Text>
         </View>
         <TouchableOpacity onPress={handlePress}>
-          <Text style={{ fontSize: 24, color: "black" }}> View Buckets </Text>
+          <Text style={{ fontSize: windowWidth * 0.05, color: 'black' }}> View Buckets </Text>
         </TouchableOpacity>
       </View>
-
     </View>
   );
 };
@@ -113,11 +95,9 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: '#fff',
-    width: windowWidth,
-    height: windowHeight,
   },
   text: {
-    fontSize: 20,
+    fontSize: windowWidth * 0.05,
     color: 'black',
     margin: 7,
     fontWeight: '800',
@@ -126,51 +106,51 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   image: {
-    width: windowWidth / 22,
+    width: windowWidth * 0.05,
     margin: 7,
-    height: windowHeight / 22,
+    height: windowHeight * 0.05,
   },
   profile: {
-    width: windowWidth / 10,
-    height: windowHeight / 20,
-    borderRadius: 100,
-    marginLeft: windowWidth - 135,
+    width: windowWidth * 0.1,
+    height: windowHeight * 0.07,
+    borderRadius: windowWidth * 0.05,
+    marginLeft: windowWidth - (windowWidth * 0.2),
     margin: 7,
   },
   searchContainer: {
-    height: windowHeight / 18,
+    height: windowHeight * 0.06,
     padding: 1,
-    marginHorizontal: 10,
+    marginHorizontal: windowWidth * 0.03,
     borderWidth: 0.8,
     borderColor: '#C0C0C0',
-    marginTop: 3,
-    borderRadius: 7,
+    marginTop: windowHeight * 0.01,
+    borderRadius: windowWidth * 0.02,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   searchInput: {
-    fontSize: 18,
+    fontSize: windowWidth * 0.04,
   },
   searchIcon: {
-    width: windowWidth / 20,
+    width: windowWidth * 0.05,
     tintColor: '#fd5c63',
-    height: windowHeight / 40,
-    margin: 7,
+    height: windowHeight * 0.025,
+    margin: windowWidth * 0.02,
   },
   container: {
-    width: (windowWidth * 90) / 100,
-    height: 60,
-    borderRadius: 12,
+    width: windowWidth * 0.9,
+    height: windowHeight * 0.1,
+    borderRadius: windowWidth * 0.02,
     position: 'absolute',
-    bottom: 30,
+    bottom: windowHeight * 0.03,
     backgroundColor: "#a2d2ff",
     alignSelf: 'center',
     elevation: 3,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 10
+    paddingHorizontal: windowWidth * 0.02,
   }
 });
 

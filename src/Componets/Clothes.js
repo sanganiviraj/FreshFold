@@ -11,15 +11,30 @@ const Clothes = ({ item }) => {
     const cartdata = useSelector((state) => state.Cart)
     const laundrydata = useSelector((state) => state.laundrydata)
 
+
     const _onaddtocart = (item) => {
-        const laundry = laundrydata.map((i) => i.data.id === item.id ? { ...i, quantity: i.data.quantity++ } : i)
+        console.log('Original laundrydata:', laundrydata);
+    
+        const index = laundrydata.findIndex((i) => i.data.id === item.id);
+        console.log('Index of the item:', index);
+    
+        const Firebaseid = index !== -1 ? laundrydata[index].id : null;
 
-        dispatch(adddatatocart(item))
-        dispatch(Productquantitydecrement(laundry))
-        console.log('adddata');
-        console.log("laundry => ", laundry);
-    }
-
+        const dataObject = item.data ? { ...item.data, Firebaseid: Firebaseid } : { Firebaseid: Firebaseid };
+ 
+        const itemWithFirebaseid = {
+            ...item,
+            data: dataObject
+        };
+    
+        dispatch(adddatatocart(itemWithFirebaseid));
+        dispatch(Productquantitydecrement(laundrydata));
+    
+        console.log('itemWithFirebaseid', itemWithFirebaseid);
+        console.log('Modified laundry:', laundrydata);
+        console.log('Id from index:', Firebaseid);
+    };
+    
     const _incrementquantitiy = (item) => {
         const cart = cartdata.map((i) => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i)
 
@@ -33,14 +48,13 @@ const Clothes = ({ item }) => {
     const _decrementquantitiy = (item) => {
         const findcart = cartdata.find((i) => i.id === item.id);
 
-
-        const laundry = laundrydata.map((i) => i.data.id === item.id ? {...i , quantity : i.data.quantity-- } : i)
+        const laundry = laundrydata.map((i) => i.data.id === item.id ? { ...i, quantity: i.data.quantity === 0 ? i.data.quantity = 0 : i.data.quantity-- } : i)
         
-        if(findcart.quantity == 0 ){
+        if (findcart.quantity == 0) {
             const dummydata = cartdata.filter((i) => i.id !== item.id);
             dispatch(Removecart(dummydata))
-        }else{
-            const cart = cartdata.map((i) => i.id === item.id ? {...i , quantity : i.quantity - 1 } : i)
+        } else {
+            const cart = cartdata.map((i) => i.id === item.id ? { ...i, quantity: i.quantity - 1 } : i)
 
             dispatch(decrementequantitiy(cart))
             console.log('decrement');
@@ -48,9 +62,7 @@ const Clothes = ({ item }) => {
         dispatch(Productquantitydecrement(laundry))
     }
 
-
-    console.log("laundry data => ",laundrydata)
-
+    // console.log("servicedata =>", laundrydata)
 
     return (
         <View>
@@ -64,46 +76,36 @@ const Clothes = ({ item }) => {
                     <Text style={{ color: 'grey', fontSize: 16, fontWeight: '600', margin: 3 }}>${item.data.price}</Text>
                 </View>
 
-                {/* <TouchableOpacity style={{ width: 100 }} onPress={() => {_onaddtocart(item)}}>
-                    <Text style={{
-                        borderColor: 'grey', 
-                        borderRadius:10,
-                        borderWidth: 1,
-                        marginVertical: 10,
-                        color: '#088F8F',
-                        fontWeight:'600',
-                        textAlign: 'center',
-                        padding: 5 }}> Add
-                    </Text>
-                </TouchableOpacity> */}
-
                 {
+                 cartdata.some((i) => i.id === item.data.id) ?
+                        (<View style={styles.buttonbox}>
 
-                cartdata.some((i) => i.id === item.data.id ) ? 
-                    ( <View style={styles.buttonbox}>
-                        <TouchableOpacity style={styles.button} onPress={() => {_incrementquantitiy(item.data)}}>
-                            <Text style={{color:'#1b263b',fontSize:28,fontFamily:"Roboto-Bold"}}> + </Text>
-                        </TouchableOpacity>
+                            <TouchableOpacity style={styles.button} onPress={() => { _decrementquantitiy(item.data) }}>
+                                <Text style={{ color: '#1b263b', fontSize: 28, fontFamily: "Roboto-Bold" }}> - </Text>
+                            </TouchableOpacity>
 
-                        <Text style={{color:'#1b263b',fontSize:18,fontFamily:"Roboto-Bold"}}> {item.data.quantity} </Text>
 
-                        <TouchableOpacity style={styles.button} onPress={() => {_decrementquantitiy(item.data)}}>
-                            <Text style={{color:'#1b263b',fontSize:28,fontFamily:"Roboto-Bold"}}> - </Text>
-                        </TouchableOpacity>
-                    </View> ) : 
-                    ( <TouchableOpacity style={{ width: 100 }} onPress={() => {_onaddtocart(item.data)}}>
-                        <Text style={{
-                            borderColor: 'grey', 
-                            borderRadius:10,
-                            borderWidth: 1,
-                            marginVertical: 10,
-                            color: '#088F8F',
-                            fontWeight:'600',
-                            textAlign: 'center',
-                            padding: 5 }}> Add
-                        </Text>
-                    </TouchableOpacity> )      
+                            <Text style={{ color: '#1b263b', fontSize: 18, fontFamily: "Roboto-Bold" }}> {item.data.quantity} </Text>
 
+                            <TouchableOpacity style={styles.button} onPress={() => { _incrementquantitiy(item.data) }}>
+                                <Text style={{ color: '#1b263b', fontSize: 28, fontFamily: "Roboto-Bold" }}> + </Text>
+                            </TouchableOpacity>
+
+                        </View>) :
+                        (<TouchableOpacity style={{ width: 100 }} onPress={() => { _onaddtocart(item.data) }}>
+                            <Text style={{
+                                borderColor: '#000',
+                                backgroundColor:'#a2d2ff',
+                                borderRadius: 10,
+                                borderWidth: 1,
+                                marginVertical: 10,
+                                color: '#000',
+                                fontWeight: '600',
+                                textAlign: 'center',
+                                padding: 5
+                            }}> Add
+                            </Text>
+                        </TouchableOpacity>)
 
                 }
 
