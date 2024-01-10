@@ -14,10 +14,16 @@ const Clothes = ({ item }) => {
     const _onaddtocart = (item) => {
         const laundry = laundrydata.map((i) => i.data.id === item.id ? {...i , quantity : i.data.quantity++ } : i)
         
+        const index = laundrydata.findIndex((i) => i.data.id === item.id);
+        const id = laundrydata[index].id;
+        const dummydata = item
+        
+        
         dispatch(adddatatocart(item))
         dispatch(Productquantitydecrement(laundry))
-        console.log('adddata');
-        console.log("laundry => " , laundry);
+        // console.log('adddata');
+        // console.log("laundry => " , laundry);
+        console.log("id => " , id);
     }
 
     const _incrementquantitiy = (item) => {
@@ -47,6 +53,7 @@ const Clothes = ({ item }) => {
     }
 
     console.log("laundry data => ",laundrydata)
+    
 
     return (
         <View>
@@ -59,19 +66,6 @@ const Clothes = ({ item }) => {
                     <Text style={{ color: 'black', fontSize: 16, fontWeight: '600', }}>{item.data.name}</Text>
                     <Text style={{ color: 'grey', fontSize: 16, fontWeight: '600',margin:3 }}>${item.data.price}</Text>
                 </View>
-
-                {/* <TouchableOpacity style={{ width: 100 }} onPress={() => {_onaddtocart(item)}}>
-                    <Text style={{
-                        borderColor: 'grey', 
-                        borderRadius:10,
-                        borderWidth: 1,
-                        marginVertical: 10,
-                        color: '#088F8F',
-                        fontWeight:'600',
-                        textAlign: 'center',
-                        padding: 5 }}> Add
-                    </Text>
-                </TouchableOpacity> */}
 
                 {
                 cartdata.some((i) => i.id === item.data.id ) ? 
