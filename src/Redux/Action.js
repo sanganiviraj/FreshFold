@@ -8,7 +8,6 @@ export const removefromcart = "cart_remover";
 export const productincrement = "PRODUCTICREMENT";
 export const productdecrement = "PRODUCTDECREMENT";
 
-
 export const Alladddata = (item) => (
     {
     type: All_datas,
